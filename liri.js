@@ -1,6 +1,5 @@
 var fs = require('fs');
 
-
 // Take in the command line arguments
 var nodeArgs = process.argv;
 var command = nodeArgs[2];
@@ -13,7 +12,7 @@ if(process.argv.length >= 4) {
 	}
 }
 
-//console.log(title);
+console.log(title);
 
 //Switches for the different commands
 switch(command) {
@@ -30,7 +29,7 @@ switch(command) {
 		break;
 
 	case 'do-what-it-says':
-		dothis();
+		doThis();
 	break;
 
 	default:
@@ -40,19 +39,19 @@ switch(command) {
 	//TWITTER FEED
 	function myTwitter() {
 		//require npm package
-    	var Twitter = require('twitter');
-    	//Get twitter keys them
+    var Twitter = require('twitter');
+    //Get twitter keys
 		var keys = require('./keys.js');
 		//Search for my twitter handle
-    	var params = {screen_name: 'DrJcode'};
-    	console.log(params);
-    	var client = new Twitter({
+    var params = {screen_name: 'DrJcode'};
+    //console.log(params);
+    var client = new Twitter({
       		consumer_key: keys.twitterKeys.consumer_key,
       		consumer_secret: keys.twitterKeys.consumer_secret,
       		access_token_key: keys.twitterKeys.access_token_key,
       		access_token_secret: keys.twitterKeys.access_token_secret
     	}); 
-    
+    	//console.log(client);
     	client.get('statuses/user_timeline', params, function(error, tweets, response) {
       		if (!error) {
         		for (var i = 0; i < tweets.length; i++) {
@@ -106,7 +105,6 @@ switch(command) {
       			// If the request does not return an error, successful 200
       			if (!error && response.statusCode == 200) {
               		// Parse, get the output
-              		//
               		console.log(JSON.parse(body));
               		//MOVIE TITLE
               		console.log("Movie Title: " + JSON.parse(body)["Title"]);
@@ -157,4 +155,41 @@ switch(command) {
     	}
   	}
 
+  	//DO WHAT IT SAYS
+  	function doThis (){
+  		//require spotify to search for song in text file
+  		fs.readFile("random.txt", "utf8", function(error, data) {
+  			//console.log(data);
+        //remove quotation marks
+  			randomString = data.replace(/["]+/g,'');
+  			//split on comma
+      	randomSplit = randomString.split(",");
+      	console.log(randomSplit);
+        var stringTitle = randomSplit[1].trim(' ');
+        console.log(stringTitle);
+        var title = stringTitle;
+        console.log(title);
+        var spotify = require('spotify'); 
+        spotify.search({ type: 'track', query: title || 'ace of base the sign' }, function(err, data) {
+          if ( err ) {
+            console.log('Error occurred: ' + err);
+            return;
+          } else {
+            var spotifyResult = data.tracks.items[0];
+            //ARTIST
+            var artist = spotifyResult.artists[0].name;
+            console.log("Artist: " + artist);
+            //SONG
+            var song = spotifyResult.name;
+            console.log("Song: " + song);
+            //PREVIEW
+            var preview = spotifyResult.preview_url;
+            console.log("Preview link: " + preview);
+            //ALBUM
+            var album = spotifyResult.album.name;
+            console.log("Album: " + album);
+          }
+        });      
+      });    	
+  	}
 
