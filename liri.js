@@ -12,7 +12,7 @@ if(process.argv.length >= 4) {
 	}
 }
 
-console.log(title);
+//console.log(title);
 
 //Switches for the different commands
 switch(command) {
@@ -36,9 +36,38 @@ switch(command) {
 	break;
 }
 
+  //APPEND EACH COMMAND IN LOG.TXT
+  function myLog () {
+    //APPEND COMMAND AND NEW LINE
+    fs.appendFile('log.txt', command + "\n", function(err) {
+      // If an error was experienced we say it.
+      if(err){
+        console.log(err);
+        // If no error is experienced, we'll append the command to log.txt.   
+      } else {
+        console.log("Command added!");
+      }
+    }); 
+    //APPEND TITLE IF THERE IS ONE IN LOG.TXT
+    if (title != null) {
+      //APPEND TITLE AND NEW LINE
+      fs.appendFile('log.txt', title + "\n", function(err) {
+        // If an error was experienced we say it.
+        if(err){
+          console.log(err);
+          // If no error is experienced, we'll append the twitterFeed to log.txt.   
+        } else {
+          console.log("Title added!");
+        }
+      }); 
+    }
+  }
+
 	//TWITTER FEED
 	function myTwitter() {
-		//require npm package
+		//APPEND NODE ARGUMENTS TO LOG.TXT
+    myLog();
+    //require npm package
     var Twitter = require('twitter');
     //Get twitter keys
 		var keys = require('./keys.js');
@@ -55,15 +84,28 @@ switch(command) {
     	client.get('statuses/user_timeline', params, function(error, tweets, response) {
       		if (!error) {
         		for (var i = 0; i < tweets.length; i++) {
-          		console.log(tweets[i].text);   
+          		console.log(tweets[i].text);
+              var twitterFeed = tweets[i].text;  
+              //APPEND DATA TO LOG.TXT
+                fs.appendFile('log.txt', twitterFeed + "\n", function(err) {
+                  // If an error was experienced we say it.
+                  if(err){
+                    console.log(err);
+                   // If no error is experienced, we'll append the twitterFeed to log.txt.   
+                  } else {
+                    //console.log("twitterFeed added!");
+                  }
+                });           
         		}
       		}
-    	});
+    	});      
     }
 
 	//SPOTIFY SEARCH
 	function spotifySearch () {
-		//require npm package
+		//APPEND NODE ARGUMENTS TO LOG.TXT
+    myLog();
+    //require npm package
 		var spotify = require('spotify');	
 		spotify.search({ type: 'track', query: title || 'ace of base the sign' }, function(err, data) {
     	if ( err ) {
@@ -86,14 +128,31 @@ switch(command) {
     		console.log("Preview link: " + preview);
     		//ALBUM
     		var album = spotifyResult.album.name;
-    		console.log("Album: " + album);
+    		console.log("Album: " + album);     
     	}
+      //APPEND DATA TO LOG.TXT
+      fs.appendFile('log.txt',
+        artist + "\n" +
+        song + "\n" +
+        preview + "\n" +
+        album + "\n"
+        , function(err) {
+        // If an error was experienced we say it.
+        if(err){
+          console.log(err);
+          // If no error is experienced, we'll append the twitterFeed to log.txt.   
+        } else {
+          console.log("song added!");
+        }
+      });      
 		});
 	}
 
 	//MOVIE SEARCH
 	function movieSearch () {
-		//npm package
+		//APPEND NODE ARGUMENTS TO LOG.TXT
+    myLog();
+    //npm package
 		var request = require('request');
 		//
 		var movieUrl = 'http://www.omdbapi.com/?t=' + title + '&y=&plot=short&tomatoes=true&r=json';
@@ -102,73 +161,135 @@ switch(command) {
 		//If the user enters a title
 		if (title != null) {
     		request(movieUrl, function (error, response, body) {	
+          //MAKE VARIABLES TO STORE DATA
+          var movieTitle = JSON.parse(body)["Title"];
+          var movieYear = JSON.parse(body)["Year"];
+          var imdbRating = JSON.parse(body)["imdbRating"];
+          var movieCountry = JSON.parse(body)["Country"];
+          var movieLanguage = JSON.parse(body)["Language"];
+          var moviePlot = JSON.parse(body)["Plot"];
+          var actors = JSON.parse(body)["Actors"];
+          var rtRating = JSON.parse(body)["tomatoRating"];
+          var rtUrl = JSON.parse(body)["tomatoURL"];
+          //APPEND DATA TO LOG.TXT
+            fs.appendFile('log.txt',
+              movieTitle + "\n" +
+              movieYear + "\n" +
+              imdbRating + "\n" +
+              movieCountry + "\n" +
+              movieLanguage + "\n" +
+              moviePlot + "\n" +
+              actors + "\n" +
+              rtRating + "\n" +
+              rtUrl + "\n"
+              , function(err) {
+              // If an error was experienced we say it.
+              if(err){
+                console.log(err);
+                // If no error is experienced, we'll append the twitterFeed to log.txt.   
+              } else {
+                console.log("movie added!");
+              }
+            });      
       			// If the request does not return an error, successful 200
       			if (!error && response.statusCode == 200) {
               		// Parse, get the output
-              		console.log(JSON.parse(body));
+              		//console.log(JSON.parse(body));
               		//MOVIE TITLE
-              		console.log("Movie Title: " + JSON.parse(body)["Title"]);
+              		console.log("Movie Title: " + movieTitle);
               		//YEAR
-              		console.log("Year: " + JSON.parse(body)["Year"]);
+              		console.log("Year: " + movieYear);
               		//IMDB
-              		console.log("IMDB Rating: " + JSON.parse(body)["imdbRating"]);
+              		console.log("IMDB Rating: " + imdbRating);
               		//COUNTRY
-              		console.log("Country of Production: " + JSON.parse(body)["Country"]);
+              		console.log("Country of Production: " + movieCountry);
               		//LANGUAGE
-              		console.log("Language: " + JSON.parse(body)["Language"]);
+              		console.log("Language: " + movieLanguage);
               		//PLOT
-              		console.log("Plot: " + JSON.parse(body)["Plot"]);
+              		console.log("Plot: " + moviePlot);
               		//ACTORS
-              		console.log("Actors: " + JSON.parse(body)["Actors"]);
+              		console.log("Actors: " + actors);
               		//ROTTEN TOMATOES RATING
-              		console.log("Rotten Tomatoes Rating: " + JSON.parse(body)["tomatoRating"]);
+              		console.log("Rotten Tomatoes Rating: " + rtRating);
               		//ROTTEN TOMATOES URL
-              		console.log("Rotten Tomatoes URL: " + JSON.parse(body)["tomatoURL"]);
-            	};
+              		console.log("Rotten Tomatoes URL: " + rtUrl);
+            	};              
       		});
 			// if user doesn't enter a title, make title Mr. Nobody
     	} else {
       		request(nobodyUrl, function (error, response, body) {
+            //MAKE VARIABLES TO STORE DATA
+          var movieTitle = JSON.parse(body)["Title"];
+          var movieYear = JSON.parse(body)["Year"];
+          var imdbRating = JSON.parse(body)["imdbRating"];
+          var movieCountry = JSON.parse(body)["Country"];
+          var movieLanguage = JSON.parse(body)["Language"];
+          var moviePlot = JSON.parse(body)["Plot"];
+          var actors = JSON.parse(body)["Actors"];
+          var rtRating = JSON.parse(body)["tomatoRating"];
+          var rtUrl = JSON.parse(body)["tomatoURL"];
+          //APPEND DATA TO LOG.TXT
+            fs.appendFile('log.txt',
+              movieTitle + "\n" +
+              movieYear + "\n" +
+              imdbRating + "\n" +
+              movieCountry + "\n" +
+              movieLanguage + "\n" +
+              moviePlot + "\n" +
+              actors + "\n" +
+              rtRating + "\n" +
+              rtUrl + "\n"
+              , function(err) {
+              // If an error was experienced we say it.
+              if(err){
+                console.log(err);
+                // If no error is experienced, we'll append the twitterFeed to log.txt.   
+              } else {
+                console.log("movie added!");
+              }
+            });      
         		// If the request does not return an error, successful 200 
        			if (!error && response.statusCode == 200) {
               		//console.log(JSON.parse(body));
               		//MOVIE TITLE
-              		console.log("Movie Title: " + JSON.parse(body)["Title"]);
+              		console.log("Movie Title: " + movieTitle);
               		//YEAR
-              		console.log("Year: " + JSON.parse(body)["Year"]);
+              		console.log("Year: " + movieYear);
               		//IMDB
-              		console.log("IMDB Rating: " + JSON.parse(body)["imdbRating"]);
+              		console.log("IMDB Rating: " + imdbRating);
               		//COUNTRY
-              		console.log("Country of Production: " + JSON.parse(body)["Country"]);
+              		console.log("Country of Production: " + movieCountry);
               		//LANGUAGE
-              		console.log("Language: " + JSON.parse(body)["Language"]);
+              		console.log("Language: " + movieLanguage);
               		//PLOT
-              		console.log("Plot: " + JSON.parse(body)["Plot"]);
+              		console.log("Plot: " + moviePlot);
               		//ACTORS
-              		console.log("Actors: " + JSON.parse(body)["Actors"]);
+              		console.log("Actors: " + actors);
               		//ROTTEN TOMATOES RATING
-              		console.log("Rotten Tomatoes Rating: " + JSON.parse(body)["tomatoRating"]);
+              		console.log("Rotten Tomatoes Rating: " + rtRating);
               		//ROTTEN TOMATOES URL
-              		console.log("Rotten Tomatoes URL: " + JSON.parse(body)["tomatoURL"]);
+              		console.log("Rotten Tomatoes URL: " + rtUrl);
             	};
       		});
-    	}
+    	}            
   	}
 
   	//DO WHAT IT SAYS
   	function doThis (){
-  		//require spotify to search for song in text file
+  		//APPEND NODE ARGUMENTS TO LOG.TXT
+      myLog();
+      //require spotify to search for song in text file
   		fs.readFile("random.txt", "utf8", function(error, data) {
   			//console.log(data);
         //remove quotation marks
   			randomString = data.replace(/["]+/g,'');
   			//split on comma
       	randomSplit = randomString.split(",");
-      	console.log(randomSplit);
+      	//console.log(randomSplit);
         var stringTitle = randomSplit[1].trim(' ');
-        console.log(stringTitle);
+        //console.log(stringTitle);
         var title = stringTitle;
-        console.log(title);
+        //console.log(title);
         var spotify = require('spotify'); 
         spotify.search({ type: 'track', query: title || 'ace of base the sign' }, function(err, data) {
           if ( err ) {
@@ -189,7 +310,22 @@ switch(command) {
             var album = spotifyResult.album.name;
             console.log("Album: " + album);
           }
+          //APPEND DATA TO LOG.TXT
+          fs.appendFile('log.txt',
+            artist + "\n" +
+            song + "\n" +
+            preview + "\n" +
+            album + "\n"
+            , function(err) {
+            // If an error was experienced we say it.
+            if(err){
+              console.log(err);
+              // If no error is experienced, we'll append the twitterFeed to log.txt.   
+            } else {
+              console.log("song added!");
+            }
+          });      
         });      
-      });    	
+      });   
   	}
 
