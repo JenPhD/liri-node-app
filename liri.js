@@ -8,7 +8,7 @@ var title = nodeArgs[3];
 //Modify search to concatenate strings for songs and movies with multi-word titles
 if(process.argv.length >= 4) {
 	for(i = 4; i < nodeArgs.length; i++) {
-		title += '+' + nodeArgs[i];
+		title += " " + nodeArgs[i];
 	}
 }
 
